@@ -3,7 +3,7 @@ import json
 import pytest
 from httpx import AsyncClient, ASGITransport
 import httpx
-from stream_proxy import app, trigger_k8s_provisioning
+from stream_proxy import app
 
 @pytest.mark.asyncio
 async def test_proxy_intercepts_intent(mocker):
@@ -12,7 +12,7 @@ async def test_proxy_intercepts_intent(mocker):
     
     # Mock Ollama's response stream
     async def mock_stream_response():
-        words = ["I", " will", " use", " python", " now."]
+        words = ["I", " will", " use", " python", " and", " pandas", " now."]
         for w in words:
             yield json.dumps({"response": w}).encode("utf-8") + b"\n"
             
@@ -39,7 +39,7 @@ async def test_proxy_intercepts_intent(mocker):
     mocker.patch("stream_proxy.httpx.AsyncClient", return_value=MockClient())
 
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.post("/api/generate", json={"prompt": "test"})
+        response = await client.post("/api/generate", json={"prompt": "test", "model": "llama3"})
         
         # Consume the stream
         chunks = []
@@ -49,5 +49,6 @@ async def test_proxy_intercepts_intent(mocker):
         assert response.status_code == 200
         assert len(chunks) > 0
         
-        # Ensure our mock trigger was called because 'python' was in the stream
-        mock_trigger.assert_called_once()
+        # Ensure our mock trigger was called because 'python' and 'pandas' were in the stream
+        # (threshold = 0.8, python = 0.5, pandas = 0.5 -> 1.0 > 0.8)
+        mock_trigger.assert_called_once_with("python")

@@ -4,10 +4,11 @@ import logging
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import StreamingResponse
 import httpx
-import re
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 
 from k8s_provisioner import warmup_tool_pod, cleanup_unused_pods
+from adapters import get_adapter
+from intent_detector import IntentDetector
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("StreamProxy")
@@ -16,12 +17,7 @@ app = FastAPI(title="Stream-Ops Semantic Proxy")
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 
-# Dictionary to map regex patterns to specific tool pods
-INTENT_PATTERNS = {
-    "python": re.compile(r"(python|execute_code|pandas|script)", re.IGNORECASE),
-    "sql": re.compile(r"(sql|postgres|database|query)", re.IGNORECASE),
-    "browser": re.compile(r"(search|browser|webpage|scrape)", re.IGNORECASE)
-}
+OLLAMA_URL = "http://localhost:11434/api/generate"
 
 # Prometheus Metrics
 INTENT_DETECTED = Counter('streamops_intents_detected_total', 'Total number of infrastructure intents detected', ['tool'])
@@ -55,47 +51,39 @@ async def metrics():
 @app.post("/api/generate")
 async def proxy_generate(request: Request):
     """
-    Proxies the request to Ollama and streams the response back,
-    inspecting the stream in real-time for infrastructure hints.
+    Proxies the request to Ollama and streams the response back.
+    Uses generic adapters and intent detectors to trigger infrastructure.
     """
     req_body = await request.json()
+    model_name = req_body.get("model", "llama3")
+    
+    # Instantiate the components for this request
+    adapter = get_adapter(model_name)
+    detector = IntentDetector(threshold=0.8)
     
     async def stream_generator():
-        triggered = False
-        buffer = ""
-        
         async with httpx.AsyncClient() as client:
             try:
+                # In a real implementation, you'd route to OLLAMA_URL or OPENAI_URL based on the adapter/model.
+                # Here we continue to forward to Ollama for the POC.
                 async with client.stream("POST", OLLAMA_URL, json=req_body, timeout=60.0) as response:
                     async for chunk in response.aiter_bytes():
                         if chunk:
-                            # Decode chunk to inspect
-                            text_chunk = chunk.decode("utf-8", errors="ignore")
+                            # 1. Adapter parses raw bytes into text
+                            text_chunk = adapter.parse_chunk(chunk)
                             
-                            # Try parsing Ollama's JSON response
-                            try:
-                                # Ollama streams JSON objects separated by newlines
-                                lines = text_chunk.strip().split('\n')
-                                for line in lines:
-                                    if line:
-                                        data = json.loads(line)
-                                        word = data.get("response", "")
-                                        buffer += word
-                                        
-                                        # Check for intent if not already triggered
-                                        if not triggered:
-                                            for tool, pattern in INTENT_PATTERNS.items():
-                                                if pattern.search(buffer):
-                                                    triggered = True
-                                                    asyncio.create_task(trigger_k8s_provisioning(tool))
-                                                    break
-                            except json.JSONDecodeError:
-                                pass # Incomplete JSON chunk, will process on next chunk
+                            if text_chunk:
+                                # 2. Detector analyzes text for intent
+                                triggered_tool = detector.process_chunk(text_chunk)
                                 
+                                # 3. Trigger K8s if confidence threshold is met
+                                if triggered_tool:
+                                    asyncio.create_task(trigger_k8s_provisioning(triggered_tool))
+                                    
                             yield chunk
             except httpx.ConnectError:
-                logger.error("Could not connect to Ollama. Make sure it is running on http://localhost:11434")
-                yield json.dumps({"error": "Ollama is not running"}).encode("utf-8")
+                logger.error("Could not connect to LLM Provider.")
+                yield json.dumps({"error": "LLM Provider is down"}).encode("utf-8")
                         
     return StreamingResponse(stream_generator(), media_type="application/x-ndjson")
 

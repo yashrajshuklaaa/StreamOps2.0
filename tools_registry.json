@@ -1,0 +1,20 @@
+{
+    "python": {
+        "description": "Execute python code, run scripts, use pandas for data analysis, math calculations, and matplotlib for plotting.",
+        "sandbox_image": "python:3.9-slim",
+        "cpu_limit": "500m",
+        "memory_limit": "512Mi"
+    },
+    "sql": {
+        "description": "Execute SQL queries against a database, postgres query, relational database access.",
+        "sandbox_image": "postgres:13-alpine",
+        "cpu_limit": "500m",
+        "memory_limit": "512Mi"
+    },
+    "browser": {
+        "description": "Search the web, scrape webpages, browse the internet using a headless browser or selenium.",
+        "sandbox_image": "selenium/standalone-chrome:latest",
+        "cpu_limit": "1000m",
+        "memory_limit": "1Gi"
+    }
+}

@@ -4,10 +4,14 @@ This is a proof-of-concept for the "Stream-Ops" Capstone project. It demonstrate
 
 ## Architecture
 
-1.  **LLM**: Locally hosted `Ollama` running models like `llama3:8b`.
-2.  **Semantic Proxy**: A FastAPI application (`stream_proxy.py`) that intercepts the LLM stream, buffering tokens and using regex to detect infrastructure intent (e.g., "python" or "pandas").
-3.  **K8s Provisioner**: A Python script (`k8s_provisioner.py`) utilizing the official Kubernetes client to spin up a Docker container in a local Minikube cluster as soon as intent is detected.
-4.  **Client Simulator**: A script (`agent_demo.py`) that acts as the UI/User, demonstrating the timeline in the console.
+Stream-Ops uses a **Provider-Agnostic Architecture**. The core mechanism relies on reading streamed output, meaning it works independently of the underlying LLM (OpenAI, Anthropic, DeepSeek, or Ollama).
+
+1.  **LLM**: The underlying provider (Current POC uses locally hosted `Ollama` running `llama3:8b`).
+2.  **Streaming Adapters**: A generic layer (`adapters.py`) that normalizes the streaming format (e.g., Server-Sent Events for OpenAI, NDJSON for Ollama) into a common text stream.
+3.  **Intent Detector**: A module (`intent_detector.py`) that calculates a confidence score based on the streaming text (e.g., if keywords like "python" and "pandas" appear, confidence rises).
+4.  **Semantic Proxy**: A FastAPI application (`stream_proxy.py`) that intercepts the LLM stream, feeds it to the Intent Detector, and triggers provisioning when confidence > 0.8.
+5.  **K8s Provisioner**: A Python script (`k8s_provisioner.py`) utilizing the official Kubernetes client to spin up a Docker container in a local Minikube cluster dynamically.
+6.  **Client Simulator**: A script (`agent_demo.py`) that acts as the UI/User, demonstrating the timeline in the console.
 
 ## Setup Instructions
 
