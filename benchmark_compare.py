@@ -1,11 +1,16 @@
 import asyncio
+import sys
 import time
 from rich.console import Console
 from rich.table import Table
-from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn
+from rich.progress import Progress, BarColumn, TextColumn
 from rich.panel import Panel
 
-console = Console()
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+
+console = Console(safe_box=True)
 
 # Simulated times in seconds
 LLM_THINKING_TIME = 8.0
@@ -28,25 +33,25 @@ async def simulate_traditional():
         task1 = progress.add_task("[yellow]LLM Chain-of-Thought Generation...", total=LLM_THINKING_TIME)
         elapsed = 0
         while elapsed < LLM_THINKING_TIME:
-            await asyncio.sleep(0.1)
-            elapsed += 0.1
-            progress.update(task1, advance=0.1)
+            await asyncio.sleep(0.05)
+            elapsed += 0.2
+            progress.update(task1, advance=0.2)
                 
         # 2. Kubernetes Cold Start
         task2 = progress.add_task("[red]K8s Reactive Cold Start (Pulling Image)...", total=K8S_COLD_START_TIME)
         elapsed = 0
         while elapsed < K8S_COLD_START_TIME:
-            await asyncio.sleep(0.1)
-            elapsed += 0.1
-            progress.update(task2, advance=0.1)
+            await asyncio.sleep(0.05)
+            elapsed += 0.2
+            progress.update(task2, advance=0.2)
                 
         # 3. Tool Execution
         task3 = progress.add_task("[blue]Executing Python Code...", total=CODE_EXECUTION_TIME)
         elapsed = 0
         while elapsed < CODE_EXECUTION_TIME:
-            await asyncio.sleep(0.1)
-            elapsed += 0.1
-            progress.update(task3, advance=0.1)
+            await asyncio.sleep(0.05)
+            elapsed += 0.2
+            progress.update(task3, advance=0.2)
 
     return time.time() - start
 
@@ -67,17 +72,17 @@ async def simulate_streamops():
         # Parallel Execution Simulation
         elapsed = 0
         while elapsed < LLM_THINKING_TIME:
-            await asyncio.sleep(0.1)
-            elapsed += 0.1
+            await asyncio.sleep(0.05)
+            elapsed += 0.2
             
             # Update LLM Task
-            progress.update(task1, advance=0.1)
+            progress.update(task1, advance=0.2)
             
             # Trigger Stream-Ops after intent detection window
             if elapsed >= INTENT_DETECTION_TIME:
                 if not progress.tasks[task2].visible:
                     progress.update(task2, visible=True)
-                progress.update(task2, advance=0.1)
+                progress.update(task2, advance=0.2)
                 
         # By the time LLM finishes, K8s is already done! (Masked Latency)
         progress.update(task2, completed=K8S_COLD_START_TIME)
@@ -86,9 +91,9 @@ async def simulate_streamops():
         task3 = progress.add_task("[blue]Executing Python Code...", total=CODE_EXECUTION_TIME)
         elapsed = 0
         while elapsed < CODE_EXECUTION_TIME:
-            await asyncio.sleep(0.1)
-            elapsed += 0.1
-            progress.update(task3, advance=0.1)
+            await asyncio.sleep(0.05)
+            elapsed += 0.2
+            progress.update(task3, advance=0.2)
 
     return time.time() - start
 

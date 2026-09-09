@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: "streamops-control-plane"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["streamops-proxy:8000"]
+        labels:
+          environment: "production"
+          service: "streamops"

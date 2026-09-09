@@ -1,0 +1,73 @@
+replicaCount: 3
+
+image:
+  repository: streamops/control-plane
+  pullPolicy: IfNotPresent
+  tag: "2.0.0"
+
+serviceAccount:
+  create: true
+  name: "streamops-controller-sa"
+
+rbac:
+  create: true
+
+service:
+  type: ClusterIP
+  port: 8000
+  targetPort: 8000
+
+ingress:
+  enabled: false
+  className: "nginx"
+  annotations: {}
+  hosts:
+    - host: streamops.internal
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 75
+
+keda:
+  enabled: true
+  pollingInterval: 15
+  cooldownPeriod: 30
+  triggers:
+    - type: prometheus
+      metadata:
+        serverAddress: http://streamops-prometheus:9090
+        metricName: streamops_tokens_processed_total
+        query: sum(rate(streamops_tokens_processed_total[1m]))
+        threshold: "150"
+
+env:
+  OLLAMA_URL: "http://ollama-service.default.svc.cluster.local:11434/api/generate"
+  NAMESPACE: "default"
+  LOG_LEVEL: "INFO"
+
+toolsRegistry:
+  python:
+    image: "python:3.11-slim"
+    cpuLimit: "500m"
+    memoryLimit: "512Mi"
+  sql:
+    image: "postgres:15-alpine"
+    cpuLimit: "500m"
+    memoryLimit: "512Mi"
+  browser:
+    image: "selenium/standalone-chrome:latest"
+    cpuLimit: "1000m"
+    memoryLimit: "1Gi"

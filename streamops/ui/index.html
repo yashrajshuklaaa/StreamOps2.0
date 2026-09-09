@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stream-Ops | Speculative Infrastructure Control Plane</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Navigation -->
+        <header class="navbar">
+            <div class="logo-group">
+                <div class="logo-icon">⚡</div>
+                <div class="logo-text">
+                    <span class="brand">Stream-Ops</span>
+                    <span class="version-tag">v2.0 Speculative Control Plane</span>
+                </div>
+            </div>
+            <div class="nav-metrics">
+                <div class="stat-badge">
+                    <span class="stat-label">CLUSTER STATUS</span>
+                    <span class="stat-value text-emerald" id="cluster-status">CONNECTED (MOCK/K8S)</span>
+                </div>
+                <div class="stat-badge">
+                    <span class="stat-label">TOTAL LATENCY MASKED</span>
+                    <span class="stat-value text-cyan" id="total-latency-masked">0.0s</span>
+                </div>
+                <div class="stat-badge">
+                    <span class="stat-label">SPECULATIVE HIT RATE</span>
+                    <span class="stat-value text-purple" id="hit-rate-badge">100%</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <main class="dashboard-grid">
+            <!-- Left Column: Interactive Agent Sandbox -->
+            <section class="card panel-agent">
+                <div class="card-header">
+                    <h2><span class="icon">💬</span> Agent Execution Stream</h2>
+                    <div class="preset-selector">
+                        <label for="prompt-presets">Scenario:</label>
+                        <select id="prompt-presets" class="select-input">
+                            <optgroup label="─── LLM Reasoning ───">
+                                <option value="python">Data Analysis (Python &amp; Pandas)</option>
+                                <option value="deepseek">DeepSeek R1 &lt;think&gt; Reasoning</option>
+                                <option value="ml_training">ML Model Training (PyTorch)</option>
+                            </optgroup>
+                            <optgroup label="─── Data &amp; Databases ───">
+                                <option value="sql">Database Query (Postgres SQL)</option>
+                                <option value="redis">Redis Cache Operations</option>
+                                <option value="file_processing">File Processing (PDF / Excel / CSV)</option>
+                            </optgroup>
+                            <optgroup label="─── Infrastructure &amp; DevOps ───">
+                                <option value="browser">Web Scraping (Selenium / Playwright)</option>
+                                <option value="docker">Docker Build &amp; Push (CI/CD)</option>
+                                <option value="bash">Shell Script (Sysadmin / Bash)</option>
+                            </optgroup>
+                            <optgroup label="─── API &amp; Networking ───">
+                                <option value="api_test">API Testing (REST / GraphQL)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="prompt-box">
+                    <textarea id="prompt-input" rows="3" class="text-area" placeholder="Enter agent user prompt or select a preset..."></textarea>
+                    <div class="prompt-controls">
+                        <div class="model-select-group">
+                            <span>Model:</span>
+                            <input type="text" id="model-input" value="llama3:8b" class="text-input-sm">
+                        </div>
+                        <button id="btn-run-stream" class="btn btn-primary">
+                            <span class="btn-icon">⚡</span> Execute Stream-Ops
+                        </button>
+                    </div>
+                </div>
+
+                <div class="stream-viewer-container">
+                    <div class="stream-header">
+                        <span>Live Token Monologue (Chain-of-Thought)</span>
+                        <span id="stream-status" class="badge-status">IDLE</span>
+                    </div>
+                    <div id="token-stream-box" class="token-stream-box">
+                        <span class="placeholder-text">Click "Execute Stream-Ops" to watch the real-time token lookahead and infrastructure pre-warming...</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Column: Speculative Control Plane & FinOps -->
+            <section class="card panel-control-plane">
+                <div class="card-header">
+                    <h2><span class="icon">🧠</span> Speculation & FinOps Engine</h2>
+                    <span id="intent-stage-badge" class="badge-tag">Stage: Inactive</span>
+                </div>
+
+                <!-- Confidence Gauge -->
+                <div class="gauge-section">
+                    <div class="gauge-header">
+                        <span>Dynamic Intent Confidence</span>
+                        <span id="confidence-percentage" class="text-bold text-cyan">0%</span>
+                    </div>
+                    <div class="gauge-bar-wrapper">
+                        <div id="confidence-bar" class="gauge-bar" style="width: 0%;"></div>
+                        <div id="threshold-marker" class="threshold-marker" style="left: 35%;" title="Bayesian FinOps Optimal Threshold (θ*)">
+                            <span class="marker-label">θ* (0.35)</span>
+                        </div>
+                    </div>
+                    <div class="gauge-subtext">
+                        <span>Target Tool: <strong id="detected-tool-name" class="text-amber">None</strong></span>
+                        <span>FinOps Decision: <strong id="finops-decision" class="text-slate">Waiting</strong></span>
+                    </div>
+                </div>
+
+                <!-- Latency Comparison Card -->
+                <div class="latency-comparison-card">
+                    <div class="comp-title">⏱️ Latency Elimination Breakdown</div>
+                    <div class="comp-bars">
+                        <div class="comp-row">
+                            <span class="comp-label">Traditional Reactive:</span>
+                            <div class="comp-bar-track">
+                                <div class="comp-bar-fill fill-red" style="width: 100%;">14.5s (LLM 8.5s + Cold Start 6.0s)</div>
+                            </div>
+                        </div>
+                        <div class="comp-row">
+                            <span class="comp-label">Stream-Ops Lookahead:</span>
+                            <div class="comp-bar-track">
+                                <div id="streamops-bar-fill" class="comp-bar-fill fill-emerald" style="width: 58%;">8.5s (0s Cold Start - Fully Masked!)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pod Lifecycle Monitor -->
+                <div class="pod-monitor-section">
+                    <div class="pod-header">
+                        <span>Active Sandbox Pods</span>
+                        <span class="pod-count" id="active-pod-count">0 Active</span>
+                    </div>
+                    <div id="pod-list-container" class="pod-list">
+                        <div class="empty-pod-notice">No speculative pods provisioned yet.</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <span>Stream-Ops 2.0 • Speculative Infrastructure Pre-Warming via Chain-of-Thought Lookahead</span>
+            <span>Prometheus Metrics: <a href="/metrics" target="_blank">/metrics</a> • Health: <a href="/healthz" target="_blank">/healthz</a></span>
+        </footer>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

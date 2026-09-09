@@ -1,11 +1,16 @@
 import asyncio
+import sys
 import httpx
 import time
 import json
 from rich.console import Console
 from rich.panel import Panel
 
-console = Console()
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+
+console = Console(safe_box=True)
 
 PROXY_URL = "http://localhost:8000/api/generate"
 
@@ -16,12 +21,12 @@ and then specify that you will write a python script using pandas.
 """
 
 async def run_demo():
-    console.print(Panel.fit("[bold green]Stream-Ops Demonstration[/bold green]", border_style="green"))
-    console.print(f"[bold cyan]0.0s[/bold cyan] --- User Submits Prompt")
+    console.print(Panel.fit("[bold green]Stream-Ops 2.0 Live Agent Demonstration[/bold green]", border_style="green"))
+    console.print("[bold cyan]0.0s[/bold cyan] --- User Submits Prompt to Stream-Ops Gateway")
     start_time = time.time()
     
     req_body = {
-        "model": "llama3:8b", # Make sure you have this model pulled in Ollama
+        "model": "llama3:8b",
         "prompt": PROMPT,
         "stream": True
     }
@@ -59,7 +64,7 @@ async def run_demo():
     elapsed = time.time() - start_time
     console.print(f"\n[bold cyan]{elapsed:.1f}s[/bold cyan] --- LLM completes thought.")
     
-    console.print("\n[bold yellow]In a traditional system, we would NOW start the Python Pod (5-10s delay).[/bold yellow]")
+    console.print("\n[bold yellow]In a traditional reactive system, we would NOW start the Python Pod (5-10s delay).[/bold yellow]")
     console.print("[bold green]With Stream-Ops, the Pod was started during the CoT phase and is already HOT![/bold green]\n")
 
 if __name__ == "__main__":

@@ -1,33 +1,46 @@
 site_name: Stream-Ops Documentation
-site_description: Just-in-Time Kubernetes Provisioning via Chain-of-Thought Lookahead
-site_author: Stream-Ops Team
+site_description: Speculative Infrastructure Pre-Warming via Chain-of-Thought Lookahead
+site_author: Stream-Ops Core Team
+repo_url: https://github.com/DrakNight21/capestone-1
 
 theme:
   name: material
   palette:
-    # Palette toggle for light mode
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: deep purple
-      accent: deep purple
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-    # Palette toggle for dark mode
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      primary: deep purple
-      accent: deep purple
+    - scheme: slate
+      primary: cyan
+      accent: teal
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+    - scheme: default
+      primary: cyan
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - content.code.copy
+    - search.suggest
+    - search.highlight
 
 markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.arithmatex:
+      generic: true
 
 nav:
-  - Home: index.md
-  - Getting Started: getting-started.md
+  - Overview: index.md
+  - Scientific Research Paper: RESEARCH_PAPER.md
   - Core Concepts: core-concepts.md
+  - Architecture: architecture.md
+  - Bayesian FinOps Engine: finops.md
+  - Deployment & Cloud DevOps: deployment.md
+  - API & Protocol Reference: api-reference.md
+  - Getting Started: getting-started.md

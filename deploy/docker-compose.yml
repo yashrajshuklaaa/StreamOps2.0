@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  streamops-proxy:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: streamops-control-plane
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_URL=http://mock-llm:11434/api/generate
+      - PROMETHEUS_MULTIPROC_DIR=/tmp
+    depends_on:
+      - mock-llm
+      - redis
+    networks:
+      - streamops-net
+
+  mock-llm:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: streamops-mock-llm
+    command: ["uvicorn", "dummy_ollama:app", "--host", "0.0.0.0", "--port", "11434"]
+    ports:
+      - "11434:11434"
+    networks:
+      - streamops-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: streamops-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - streamops-net
+
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: streamops-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - streamops-net
+
+  grafana:
+    image: grafana/grafana:10.2.2
+    container_name: streamops-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./observability/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - streamops-net
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.52
+    container_name: streamops-jaeger
+    ports:
+      - "16686:16686"
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+    networks:
+      - streamops-net
+
+networks:
+  streamops-net:
+    driver: bridge

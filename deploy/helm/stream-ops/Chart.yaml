@@ -1,0 +1,17 @@
+apiVersion: v2
+name: stream-ops
+description: Enterprise Helm Chart for Stream-Ops Speculative Infrastructure Control Plane
+type: application
+version: 2.0.0
+appVersion: "2.0.0"
+keywords:
+  - llm
+  - agents
+  - speculative-execution
+  - kubernetes
+  - keda
+  - aiops
+home: https://github.com/DrakNight21/capestone-1
+maintainers:
+  - name: Stream-Ops Team
+    email: maintainers@streamops.ai

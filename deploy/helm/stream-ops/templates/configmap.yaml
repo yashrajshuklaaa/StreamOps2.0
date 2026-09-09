@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-tools-registry
+  labels:
+    app.kubernetes.io/name: stream-ops
+data:
+  tools_registry.json: |
+    {{- toJson .Values.toolsRegistry | nindent 4 }}
