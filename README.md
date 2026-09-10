@@ -11,18 +11,9 @@
 
 ---
 
-## ⚡ The Scientific Breakthrough
+## Architecture / Sequence Diagram
 
-```
-Traditional Reactive Execution (5-15s Cold Start Penalty):
-[   LLM Chain-of-Thought Reasoning (8.0s)   ] ──► [ K8s Pod Cold Start (6.0s) ] ──► [ Exec (0.5s) ]
-Total TTFE: 14.5s (User blocked by serial latency)
-
-Stream-Ops Speculative Lookahead (Zero Cold Start):
-[   LLM Chain-of-Thought Reasoning (8.0s)   ] ──► [ Exec (0.5s) ]
-    └──► [ K8s Pod Pre-warming (6.0s) ] (COMPLETELY MASKED IN PARALLEL)
-Total TTFE: 8.5s (Up to 3.5x faster Time-to-First-Execution!)
-```
+![StreamOps Sequence Diagram](sequence_diagram_full_quality.png)
 
 ### Key Innovations:
 1. **Sub-Request Concurrency**: Treats the LLM’s internal reasoning monologue (*Chain-of-Thought / `<think>` tokens*) as an infrastructural branch predictor.
