@@ -1,0 +1,32 @@
+{
+  "primary": [
+    {
+      "task_id": "python_mul",
+      "prompt": "Use python_exec exactly once to compute 137 multiplied by 269. Print only the numeric answer from Python, then explain it briefly.",
+      "code_hint": "print(137 * 269)",
+      "expected_output": "36853",
+      "success": true
+    },
+    {
+      "task_id": "python_sum",
+      "prompt": "Use python_exec exactly once to compute the sum of integers from 1 through 100 inclusive. Print only the numeric answer from Python, then explain it briefly.",
+      "code_hint": "print(sum(range(1, 101)))",
+      "expected_output": "5050",
+      "success": true
+    },
+    {
+      "task_id": "python_pow",
+      "prompt": "Use python_exec exactly once to compute 2 to the power of 20. Print only the numeric answer from Python, then explain it briefly.",
+      "code_hint": "print(2 ** 20)",
+      "expected_output": "1048576",
+      "success": true
+    },
+    {
+      "task_id": "python_squares",
+      "prompt": "Use python_exec exactly once to compute the sum of the squares of integers from 1 through 50 inclusive. Print only the numeric answer from Python, then explain it briefly.",
+      "code_hint": "print(sum(i * i for i in range(1, 51)))",
+      "expected_output": "42925",
+      "success": true
+    }
+  ]
+}
