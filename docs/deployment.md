@@ -1,54 +1,33 @@
-# Cloud DevOps & Deployment Guide
+# Deployment
 
-Stream-Ops is designed to run seamlessly from local development to multi-region cloud Kubernetes clusters.
+## Local Kind prototype
 
----
-
-## 1. Local Development (Docker Compose)
-
-The easiest way to run the entire Stream-Ops stack (Control Plane + Mock LLM + Prometheus + Grafana + Redis + Jaeger) locally:
+The Go control plane and Rust intent service can be built and deployed to a
+local Kind cluster using:
 
 ```bash
-cd deploy
-docker-compose up --build
+./scripts/run-kind.sh
 ```
 
-### Endpoints:
-- **Stream-Ops Visualizer Dashboard**: [http://localhost:8000/dashboard](http://localhost:8000/dashboard)
-- **Prometheus Metrics**: [http://localhost:9090](http://localhost:9090)
-- **Grafana Dashboard**: [http://localhost:3000](http://localhost:3000) (User: `admin`, Pass: `admin`)
-- **Jaeger Distributed Traces**: [http://localhost:16686](http://localhost:16686)
+The script creates a `streamops` Kind cluster, builds and loads the two service
+images, then deploys the services and Ollama. The local cluster exposes the Go
+service on `http://localhost:8000`. The repository
+[README](https://github.com/yashrajshuklaaa/StreamOps2.0/blob/main/README.md)
+has a streaming smoke-test request.
 
----
+The setup uses real Kubernetes pods, but does not execute tool payloads or
+represent a production deployment. The Ollama model must be downloaded
+separately, and cluster behavior depends on local machine resources and image
+availability.
 
-## 2. Production Kubernetes Deployment (Helm v3)
+## Legacy deployment examples
 
-### Step 1: Install Custom Resource Definitions (CRDs)
-```bash
-kubectl apply -f streamops/k8s/crd/
-```
+`deploy/docker-compose.yml`, `deploy/helm/stream-ops/`, and
+`deploy/terraform/` predate the Go/Rust prototype. They describe examples for
+the legacy Python stack and have not been validated as deployment artifacts
+for the current services. The Helm chart and Terraform files must not be
+treated as production-ready infrastructure without review and testing.
 
-### Step 2: Deploy Helm Chart
-```bash
-helm upgrade --install stream-ops deploy/helm/stream-ops \
-  --namespace streamops-system \
-  --create-namespace \
-  --set replicaCount=3 \
-  --set env.OLLAMA_URL="http://ollama.ai.svc.cluster.local:11434/api/generate"
-```
-
----
-
-## 3. Infrastructure as Code (Terraform for AWS EKS)
-
-```bash
-cd deploy/terraform
-terraform init
-terraform plan -out=tfplan
-terraform apply tfplan
-```
-
-This provisions:
-- Production AWS VPC with public/private subnets.
-- Amazon EKS Cluster v1.28 with Spot and On-Demand Node Groups.
-- IAM Roles for Service Accounts (IRSA) for Kubernetes Pod management.
+The Go/Rust prototype does not yet include a Kubernetes operator, CRD-based
+reconciliation, production RBAC policy, NetworkPolicy, priority/preemption
+configuration, or a production observability deployment.

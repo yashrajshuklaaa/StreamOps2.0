@@ -1,56 +1,54 @@
-# API & Protocol Reference
+# API Reference
 
-Stream-Ops exposes standard OpenAI and Ollama compatible endpoints alongside telemetry and observability hooks.
+This reference describes the current Go control plane in
+`services/control-plane/`. It currently supports Ollama's
+`/api/generate` route; the legacy Python service has additional routes that
+are not part of this Go/Rust prototype.
 
----
+## `POST /api/generate`
 
-## Endpoints
+Forwards an Ollama generation request and streams the upstream NDJSON response.
+Each response chunk is also sent to the Rust intent service. When the intent
+service returns a trigger decision, the Go control plane creates a Kubernetes
+pod asynchronously.
 
-### 1. `POST /api/generate`
-Proxies streaming generation requests with real-time speculative lookahead.
+The response includes an `X-StreamOps-Session-ID` header. Keep this value if
+you want to claim the corresponding speculative pod. A triggered pod is an
+idle sandbox; this endpoint does not execute generated code or tool calls.
 
-**Request Body (NDJSON/JSON):**
-```json
-{
-  "model": "llama3:8b",
-  "prompt": "Analyze this data in Python and compute averages.",
-  "stream": true
-}
+## `POST /v1/sessions/{session_id}/claim`
+
+Marks an existing speculative pod as claimed and waits for it to become ready.
+It does not run a tool payload.
+
+Example:
+
+```http
+POST /v1/sessions/0123456789abcdef0123456789abcdef/claim
+Content-Type: application/json
+
+{"tool_name":"python"}
 ```
 
-**Response:**
-Streams NDJSON chunks while concurrently triggering Kubernetes pod pre-warming in the background.
+The response contains the pod name, namespace, readiness status, and timing
+fields. Timing returned by this endpoint is not an end-to-end TTFE measurement.
 
----
+## `GET /healthz` and `GET /readyz`
 
-### 2. `POST /v1/chat/completions`
-OpenAI-compatible chat completion proxy supporting Server-Sent Events (SSE).
+`/healthz` indicates that the Go process is running. `/readyz` checks the
+configured Kubernetes namespace API and Rust intent service.
 
-**Request Body:**
-```json
-{
-  "model": "gpt-4o",
-  "messages": [
-    {"role": "user", "content": "Query the PostgreSQL database for user registrations."}
-  ],
-  "stream": true
-}
-```
+## `GET /metrics`
 
----
+Exposes Go process metrics and the following Stream-Ops counters/histograms:
 
-### 3. `GET /metrics`
-Prometheus metrics endpoint.
+- `streamops_intent_triggers_total`
+- `streamops_pod_create_errors_total`
+- `streamops_pod_trigger_to_ready_seconds`
+- `streamops_cold_start_seconds_masked_total`
+- `streamops_speculative_pods_reclaimed_total`
 
-**Key Metrics:**
-- `streamops_tokens_processed_total`: Total streaming tokens processed.
-- `streamops_intents_detected_total`: Speculative intents triggered per tool.
-- `streamops_pod_provision_seconds`: Latency distribution of pod provisioning.
-- `streamops_latency_masked_seconds_total`: Cumulative cold-start seconds masked.
-- `streamops_active_sandboxes`: Gauge of currently active pods.
-- `streamops_finops_saved_usd_total`: Total calculated dollar value saved.
-
----
-
-### 4. `GET /healthz` & `GET /readyz`
-Liveness and Readiness health checks.
+The metric named `streamops_cold_start_seconds_masked_total` currently
+calculates the overlap of a recorded pod-ready time and a claim request. It
+does not establish an agent-generated tool call or an end-to-end latency
+benefit; interpret it as a prototype diagnostic only.

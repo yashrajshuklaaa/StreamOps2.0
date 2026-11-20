@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -31,10 +31,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -539,10 +539,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#provider-agnostic-streaming" class="md-nav__link">
+  <a href="#ollama-stream-inspection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Provider-Agnostic Streaming
+        Ollama stream inspection
       
     </span>
   </a>
@@ -550,10 +550,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#confidence-based-intent-detection" class="md-nav__link">
+  <a href="#heuristic-intent-score" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Confidence-Based Intent Detection
+        Heuristic intent score
       
     </span>
   </a>
@@ -561,10 +561,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#lifecycle-management-garbage-collection" class="md-nav__link">
+  <a href="#pod-lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Lifecycle Management &amp; Garbage Collection
+        Pod lifecycle
       
     </span>
   </a>
@@ -741,10 +741,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#provider-agnostic-streaming" class="md-nav__link">
+  <a href="#ollama-stream-inspection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Provider-Agnostic Streaming
+        Ollama stream inspection
       
     </span>
   </a>
@@ -752,10 +752,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#confidence-based-intent-detection" class="md-nav__link">
+  <a href="#heuristic-intent-score" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Confidence-Based Intent Detection
+        Heuristic intent score
       
     </span>
   </a>
@@ -763,10 +763,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#lifecycle-management-garbage-collection" class="md-nav__link">
+  <a href="#pod-lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Lifecycle Management &amp; Garbage Collection
+        Pod lifecycle
       
     </span>
   </a>
@@ -794,26 +794,13 @@
 
 
 <h1 id="core-concepts">Core Concepts</h1>
-<p>Stream-Ops relies on three foundational components to achieve just-in-time infrastructure provisioning: <strong>Streaming Adapters</strong>, the <strong>Intent Detector</strong>, and the <strong>Kubernetes Provisioner</strong>.</p>
-<h2 id="provider-agnostic-streaming">Provider-Agnostic Streaming</h2>
-<p>The core requirement of Stream-Ops is the ability to receive LLM output incrementally (streaming) and inspect those events before the response is complete.</p>
-<p>Different LLMs emit streams in different formats:
-- <strong>OpenAI / Anthropic</strong>: Server-Sent Events (SSE) Delta Stream.
-- <strong>Ollama</strong>: NDJSON (Newline Delimited JSON).</p>
-<p>Stream-Ops solves this using an abstraction layer called <code>StreamingAdapter</code>. The proxy routes the request to the correct adapter, which normalizes the chunked bytes into a pure text stream. This ensures the infrastructure logic remains completely decoupled from the AI provider.</p>
-<h2 id="confidence-based-intent-detection">Confidence-Based Intent Detection</h2>
-<p>Instead of relying on rigid, hardcoded regular expressions (e.g., <code>if "python" in text</code>), Stream-Ops utilizes a weighted <strong>Confidence Scoring</strong> system within the <code>IntentDetector</code>.</p>
-<p>As tokens stream in, the detector calculates a running confidence score based on keywords. 
-For example:
-- <code>python</code> (+0.5)
-- <code>pandas</code> (+0.5)</p>
-<p>If the cumulative score crosses the threshold (e.g., <code>0.8</code>), the detector confidently emits a <code>ResourceDecision</code>. This allows the system to differentiate between a casual mention of a tool and an actual intent to execute code.</p>
-<h2 id="lifecycle-management-garbage-collection">Lifecycle Management &amp; Garbage Collection</h2>
-<p>A common critique of pre-warming infrastructure is the potential waste of memory and compute resources if the LLM changes its mind and doesn't end up using the pre-warmed pod.</p>
-<p>Stream-Ops solves this via a background <strong>Garbage Collection TTL Loop</strong>:
-1. When a pod is provisioned, it is tagged with <code>streamops-ttl: active</code>.
-2. A background thread continually monitors the age of all active pods.
-3. If a pod sits unused for 60 seconds (its Time-To-Live), Kubernetes automatically deletes it, ensuring zero resource leakage.</p>
+<p>The current prototype contains a Rust intent-scoring service and a Go Ollama-to-Kubernetes control plane. It is not yet a general multi-provider agent integration.</p>
+<h2 id="ollama-stream-inspection">Ollama stream inspection</h2>
+<p>The Go proxy handles Ollama's newline-delimited <code>/api/generate</code> response and sends each <code>response</code> value to the Rust service. It does not currently normalize OpenAI, Anthropic, or DeepSeek streams, and it does not establish access to private chain-of-thought.</p>
+<h2 id="heuristic-intent-score">Heuristic intent score</h2>
+<p>The Rust service combines keyword matching and TF-IDF-style lexical similarity. It passes a heuristic score to a cost threshold derived from static tool-profile constants. The score is <strong>not calibrated as a probability</strong>, and a tool mention does not establish that the agent will execute that tool.</p>
+<h2 id="pod-lifecycle">Pod lifecycle</h2>
+<p>The Go service creates a namespaced pod after a trigger, offers an endpoint to mark it claimed, observes readiness, and periodically deletes unclaimed pods after the configured TTL. Claiming is not tool execution. TTL cleanup does not guarantee zero resource leakage, and security/isolation properties have not been independently evaluated.</p>
 
 
 
@@ -863,10 +850,10 @@ For example:
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>

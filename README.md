@@ -1,26 +1,29 @@
 # Stream-Ops 2.0: Speculative Infrastructure Pre-Warming via Chain-of-Thought Lookahead
 
-[![CI/CD Pipeline](https://github.com/DrakNight21/capestone-1/actions/workflows/ci.yml/badge.svg)](https://github.com/DrakNight21/capestone-1/actions/workflows/ci.yml)
+[![CI/CD Pipeline](https://github.com/yashrajshuklaaa/StreamOps2.0/actions/workflows/ci.yml/badge.svg)](https://github.com/yashrajshuklaaa/StreamOps2.0/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Kubernetes](https://img.shields.io/badge/kubernetes-v1.28+-326CE5.svg)](https://kubernetes.io/)
 [![Helm v3](https://img.shields.io/badge/helm-v3.13+-0F1689.svg)](https://helm.sh/)
 [![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-Enabled-F5A800.svg)](https://opentelemetry.io/)
 
-**Stream-Ops** is an enterprise cloud-native speculative control plane that eliminates container cold-start latencies for autonomous LLM agents (ReAct, Model Context Protocol, DeepSeek-R1, OpenAI o-series) by exploiting the **Chain-of-Thought (CoT) lookahead window**.
+**Stream-Ops** is a research prototype exploring speculative sandbox prewarming for tool-using LLM agents. Its local Go/Rust implementation can inspect streamed Ollama response text and create a Kubernetes pod. Performance improvements and agent tool execution have not yet been evaluated.
 
 ---
 
 ## Architecture / Sequence Diagram
 
+This is a conceptual target diagram; it does not represent every implemented component.
+
 ![StreamOps Sequence Diagram](sequence_diagram_full_quality.png)
 
-### Key Innovations:
-1. **Sub-Request Concurrency**: Treats the LLM’s internal reasoning monologue (*Chain-of-Thought / `<think>` tokens*) as an infrastructural branch predictor.
-2. **Bayesian FinOps Cost-Utility Theory**: Dynamically computes optimal trigger thresholds $\theta^*(k) = \frac{C_{\text{waste}}(k)}{C_{\text{waste}}(k) + C_{\text{cold}}(k)}$, balancing compute cost against latency SLAs.
-3. **DeepSeek `<think>` Token Interception**: Exploits internal reasoning token blocks before final tool emission.
-4. **Cloud-Native Kubernetes Operator & CRDs**: Ephemeral session-isolated sandboxes (`streamops-<tool>-<uuid>`) with automated TTL garbage collection.
-5. **Full Observability & Benchmarks**: OpenTelemetry tracing, Prometheus `/metrics`, Grafana dashboards, and empirical benchmark suites.
+### Current prototype
+- Scores streamed Ollama response text using keyword matching and TF-IDF-style similarity.
+- Applies a heuristic threshold based on static tool-cost profile values; scores are not calibrated probabilities.
+- Creates a real Kubernetes sandbox pod and supports claiming and TTL cleanup.
+- Exposes Prometheus metrics.
+
+The current system is not a production operator, does not execute tool payloads in the sandbox, and does not provide verified performance results. See the [research paper](docs/RESEARCH_PAPER.md) for limitations and evaluation status.
 
 ---
 
@@ -82,10 +85,11 @@ python stream_proxy.py
 ```
 Open **[http://localhost:8000/dashboard](http://localhost:8000/dashboard)** in your browser to access the interactive live visualizer!
 
-### 3. Run the Empirical Benchmark Suite
+### 3. Run the SIMULATED Benchmark
 ```bash
 python benchmarks/benchmark_suite.py
 ```
+This computes example values from fixed assumptions; it does not measure model or Kubernetes latency.
 
 ### 4. Run the Unit & Integration Test Suite
 ```bash
@@ -94,15 +98,9 @@ pytest tests/ -v
 
 ---
 
-## 📊 Empirical Benchmarks
+## 📊 Evaluation Status
 
-| CoT Reasoning Tokens | Reasoning Time | Traditional TTFE | Stream-Ops TTFE | Latency Masked | TTFE Speedup |
-| :---: | :---: | :---: | :---: | :---: | :---: |
-| **25 tokens** | 0.71s | 6.46s | 5.92s | 0.54s | 1.09x |
-| **75 tokens** | 2.14s | 7.89s | 5.92s | 1.97s | 1.33x |
-| **150 tokens** | 4.29s | 10.04s | 5.92s | 4.12s | 1.70x |
-| **300 tokens** | 8.57s | 14.32s | 8.82s | 5.50s | **1.62x (100% Masked)** |
-| **500 tokens** | 14.29s | 20.04s | 14.54s | 5.50s | **1.38x (100% Masked)** |
+**Performance evaluation: not yet conducted.** The repository currently has no retained raw benchmark traces or results under `results/`. The legacy benchmark script is a simulation based on assumptions and is not empirical evidence. No TTFE speedup, cold-start masking, cloud-cost saving, or proxy-overhead measurement is claimed. Details and planned metrics are in the [research paper](docs/RESEARCH_PAPER.md).
 
 ---
 
@@ -112,8 +110,8 @@ pytest tests/ -v
 deploy/
 ├── docker-compose.yml              # Local multi-service orchestration (Proxy + Prom + Grafana + Jaeger + Redis)
 ├── Dockerfile                      # Production multi-stage non-root container
-├── helm/stream-ops/                # Production Helm v3 Chart with KEDA ScaledObject
-├── terraform/                      # Production AWS EKS / VPC Infrastructure as Code
+├── helm/stream-ops/                # Helm chart prototype
+├── terraform/                      # Terraform infrastructure examples
 └── observability/
     ├── prometheus.yml              # Prometheus scraper configuration
     └── dashboards/
@@ -124,9 +122,8 @@ deploy/
 
 ## 📄 Academic Research Paper
 
-Read our full scientific research paper:  
+Read the current prototype report and evaluation status:
 👉 **[docs/RESEARCH_PAPER.md](docs/RESEARCH_PAPER.md)**  
-*Structured for submission to MLSys, ACM SoCC, and IEEE Transactions on Cloud Computing.*
 
 ---
 

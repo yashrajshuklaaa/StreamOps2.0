@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -31,10 +31,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#bayesian-finops-decision-theory" class="md-skip">
+        <a href="#finops-threshold-prototype" class="md-skip">
           Skip to content
         </a>
       
@@ -621,10 +621,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#default-tool-finops-profiles" class="md-nav__link">
+  <a href="#hard-coded-prototype-profiles" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Default Tool FinOps Profiles
+        Hard-coded prototype profiles
       
     </span>
   </a>
@@ -775,10 +775,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#default-tool-finops-profiles" class="md-nav__link">
+  <a href="#hard-coded-prototype-profiles" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Default Tool FinOps Profiles
+        Hard-coded prototype profiles
       
     </span>
   </a>
@@ -805,23 +805,27 @@
   
 
 
-<h1 id="bayesian-finops-decision-theory">Bayesian FinOps Decision Theory</h1>
-<p>A central challenge in speculative cloud provisioning is <strong>compute cost control</strong>. If an agent speculatively provisions resources that are never used, cloud spend increases.</p>
-<p>Stream-Ops solves this through a <strong>Bayesian Cost-Utility Decision Policy</strong>.</p>
+<h1 id="finops-threshold-prototype">FinOps Threshold Prototype</h1>
+<blockquote>
+<p><strong>Status: illustrative model, not validated cloud-cost optimization.</strong> The current Go/Rust prototype uses hard-coded profile values and uncalibrated intent scores. It does not retrieve live prices, estimate remaining reasoning time, or establish that a trigger minimizes operational cost.</p>
+</blockquote>
+<p>The equation below is a simplified expected-loss example. It assumes that <code>P_k</code> is a calibrated probability and that the listed costs accurately represent the decision. Those assumptions do not hold for the current prototype, so its threshold is heuristic rather than a proven optimal policy.</p>
 <hr />
 <h2 id="mathematical-derivation">Mathematical Derivation</h2>
 <p>Let tool <span class="arithmatex">\(k\)</span> have:
 - <span class="arithmatex">\(C_{\text{waste}}(k) = \text{cost\_per\_second} \times \text{TTL}\)</span>: Cost incurred if the speculative pod is created and discarded.
 - <span class="arithmatex">\(C_{\text{cold}}(k) = T_{\text{cold}} \times \mu_{\text{SLA}}\)</span>: Penalty incurred if the system fails to pre-warm and the user waits.
-- <span class="arithmatex">\(P_k = P(\text{Tool } k \mid \tau_{1:t})\)</span>: Cumulative intent confidence from streaming lookahead.</p>
+- <span class="arithmatex">\(P_k = P(\text{Tool } k \mid \tau_{1:t})\)</span>: A calibrated probability would be required. The current detector's score is <strong>not</strong> such a probability.</p>
 <h3 id="expected-loss-comparison">Expected Loss Comparison</h3>
 <div class="arithmatex">\[\mathbb{E}[\text{Loss} \mid \text{Speculate}] = (1 - P_k) \cdot C_{\text{waste}}(k)$$
 $$\mathbb{E}[\text{Loss} \mid \text{Wait}] = P_k \cdot C_{\text{cold}}(k)\]</div>
-<p>Speculation is optimal when <span class="arithmatex">\(\mathbb{E}[\text{Loss} \mid \text{Speculate}] \le \mathbb{E}[\text{Loss} \mid \text{Wait}]\)</span>:</p>
+<p>Under those simplifying assumptions, the decision boundary would be:</p>
 <div class="arithmatex">\[(1 - P_k) C_{\text{waste}}(k) \le P_k C_{\text{cold}}(k)\]</div>
 <div class="arithmatex">\[\boxed{\theta^*(k) = \frac{C_{\text{waste}}(k)}{C_{\text{waste}}(k) + C_{\text{cold}}(k)}}\]</div>
 <hr />
-<h2 id="default-tool-finops-profiles">Default Tool FinOps Profiles</h2>
+<p>This equation omits the remaining reasoning window and the portion of cold-start time that could be hidden. It is not the lookahead-aware rule proposed for future work, nor an optimality result for the deployed implementation.</p>
+<h2 id="hard-coded-prototype-profiles">Hard-coded prototype profiles</h2>
+<p>The following are source-code configuration values, not live provider prices or measured cold-start distributions. They are retained for prototype behavior and must not be used for a cloud budget or a performance claim.</p>
 <table>
 <thead>
 <tr>
@@ -863,17 +867,17 @@ $$\mathbb{E}[\text{Loss} \mid \text{Wait}] = P_k \cdot C_{\text{cold}}(k)\]</div
 <td style="text-align: center;"><strong>0.23</strong> (Moderate)</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Heavy GPU Worker</strong></td>
-<td style="text-align: center;">4 vCPU, 16GB, GPU</td>
-<td style="text-align: center;">$0.00800</td>
-<td style="text-align: center;">15.0s</td>
-<td style="text-align: center;">$0.4800</td>
-<td style="text-align: center;">$0.0750</td>
-<td style="text-align: center;"><strong>0.86</strong> (Conservative)</td>
+<td style="text-align: left;"><strong>Bash</strong></td>
+<td style="text-align: center;">0.25 vCPU, 256MB</td>
+<td style="text-align: center;">$0.00003</td>
+<td style="text-align: center;">3.0s</td>
+<td style="text-align: center;">$0.0018</td>
+<td style="text-align: center;">$0.0150</td>
+<td style="text-align: center;"><strong>0.15</strong> (clamped)</td>
 </tr>
 </tbody>
 </table>
-<p>This dynamic boundary automatically ensures that <strong>expensive GPU workloads require strict intent certainty</strong>, while <strong>lightweight CPU sandboxes trigger eagerly</strong>, maximizing user speedups at minimal cost.</p>
+<p>No GPU profile or dynamic price integration is implemented. No claim is made that this policy minimizes spend, bounds expenditure, or improves latency. Calibration, current pricing inputs, lookahead-aware utility, and evaluation remain open work.</p>
 
 
 
@@ -923,10 +927,10 @@ $$\mathbb{E}[\text{Loss} \mid \text{Wait}] = P_k \cdot C_{\text{cold}}(k)\]</div
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>

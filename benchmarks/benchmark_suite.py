@@ -29,7 +29,8 @@ class BenchmarkTrialResult:
 
 class StreamOpsBenchmarkSuite:
     """
-    Empirical Benchmark Suite for Stream-Ops Speculative Infrastructure Lookahead.
+    SIMULATED benchmark for Stream-Ops speculative infrastructure lookahead.
+    All timings and costs are derived from fixed assumptions, not measurements.
     Compares:
       1. Traditional Reactive Autoscaling (Post-hoc tool allocation)
       2. Always-On Warm Reservations (FinOps Waste Baseline)
@@ -126,15 +127,15 @@ class StreamOpsBenchmarkSuite:
 
 async def main():
     console.print(Panel.fit(
-        "[bold cyan]Stream-Ops 2.0 Empirical Latency Masking & TTFE Benchmark[/bold cyan]\n"
-        "[dim]Testing against varying Chain-of-Thought reasoning token trajectories[/dim]",
+        "[bold cyan]Stream-Ops SIMULATED Latency Masking & TTFE Benchmark[/bold cyan]\n"
+        "[dim]Illustrative calculations using fixed token-rate and cold-start assumptions; not measured[/dim]",
         border_style="cyan"
     ))
 
     suite = StreamOpsBenchmarkSuite()
     results = await suite.execute_full_suite()
 
-    table = Table(title="Empirical Results: Traditional vs Stream-Ops Speculative Execution", header_style="bold magenta")
+    table = Table(title="SIMULATED Results: Traditional vs Stream-Ops Speculative Execution", header_style="bold magenta")
     table.add_column("CoT Tokens", justify="center", style="cyan")
     table.add_column("Reasoning Time", justify="right")
     table.add_column("Traditional TTFE", justify="right", style="red")
@@ -159,7 +160,7 @@ async def main():
         )
 
     console.print(table)
-    console.print("\n[bold green]Benchmark complete: Stream-Ops achieves up to 100% cold-start masking for reasoning windows > 150 tokens![/bold green]\n")
+    console.print("\n[bold yellow]Simulation complete. These modeled values are not measured system performance.[/bold yellow]\n")
 
 if __name__ == "__main__":
     asyncio.run(main())

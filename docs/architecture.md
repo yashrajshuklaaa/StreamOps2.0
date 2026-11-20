@@ -1,53 +1,48 @@
 # System Architecture
 
-Stream-Ops is engineered with a modular, cloud-native control plane architecture designed for high-throughput, low-latency LLM agent workloads.
+This diagram describes the current local prototype, not a production operator or a measured high-throughput system.
 
 ```mermaid
 flowchart TD
-    Client([Agent Client / MCP Gateway]) <-->|Streaming HTTP / SSE| Proxy[FastAPI Streaming Proxy]
-
-    subgraph StreamOpsEngine [Stream-Ops Speculative Engine]
-        Proxy --> Adapter[Streaming Adapter: OpenAI / Claude / Ollama / DeepSeek]
-        Adapter --> IntentEngine[Calibrated Intent Lookahead Engine]
-        
-        IntentEngine --> FastFilter[Stage 1: N-Gram Fast Filter <0.2ms]
-        FastFilter --> VectorScorer[Stage 2: TF-IDF Vector Scorer]
-        VectorScorer --> FinOpsGate[Stage 3: Bayesian FinOps Decision Policy]
-        
-        FinOpsGate -->|Trigger Signal| K8sCtrl[Kubernetes Sandbox Controller]
-    end
-
-    subgraph KubernetesCluster [Kubernetes Cluster]
-        K8sCtrl -->|Speculative Pod Spawn| PodPool[Session-Isolated Pod: streamops-python-uuid]
-        PodPool --> TTL[Background TTL Garbage Collector]
-    end
-
-    subgraph TelemetryStack [Observability & Web UI]
-        Proxy --> OTEL[OpenTelemetry Distributed Tracing]
-        OTEL --> Prom[Prometheus Metrics]
-        Prom --> Grafana[Grafana Dashboard]
-        Proxy --> UI[Glassmorphism Visualizer UI]
-    end
+    Client([HTTP client]) -->|Ollama generate request| Go[Go control plane]
+    Go -->|proxy request| Ollama[Ollama]
+    Ollama -->|NDJSON response chunks| Go
+    Go -->|chunk text, synchronous HTTP call| Rust[Rust intent service]
+    Rust -->|heuristic decision| Go
+    Go -->|create pod| K8s[Kubernetes API]
+    K8s --> Pod[Idle speculative sandbox pod]
+    Go -->|claim / TTL cleanup| K8s
+    Go --> Metrics[Prometheus metrics endpoint]
 ```
-
----
 
 ## Architecture Components
 
-### 1. Multi-Provider Streaming Adapters (`streamops/adapters/`)
-Normalizes heterogeneous LLM streaming formats into a unified `StreamChunk` interface:
-- **OpenAI SSE Delta Streams**: Parses `choices[0].delta.content` and `reasoning_content`.
-- **Anthropic Claude Streams**: Normalizes `content_block_delta` and `thinking_delta`.
-- **Ollama NDJSON Streams**: Parses newline-delimited JSON chunks.
-- **DeepSeek R1 Interceptor**: Tracks `<think> ... </think>` token state machine.
+### 1. Go Ollama proxy (`services/control-plane/`)
 
-### 2. Multi-Stage Intent Predictor (`streamops/intent/`)
-- **Stage 1 (Sub-millisecond N-Gram Fast-Path)**: Evaluates compiled regex lookaheads in $<0.2\text{ms}$.
-- **Stage 2 (TF-IDF Vector Scorer)**: Fits an n-gram vectorizer against dynamic tool catalogs and MCP specifications.
-- **Stage 3 (Bayesian Threshold Gate)**: Validates against tool-specific cost-utility boundaries.
+Proxies Ollama's newline-delimited `/api/generate` route and inspects each
+response chunk. OpenAI and Anthropic adapters in the legacy Python tree are
+not used by this Go service. The prototype does not claim access to private
+reasoning.
 
-### 3. Kubernetes Sandbox Controller (`streamops/k8s/`)
-- **Session Pod Naming**: Unique deterministic naming `streamops-<tool>-<session_id>` to guarantee concurrency isolation.
-- **Two-Phase Commit**: Ephemeral pods start in `PREWARMED` state; transitioning to `CLAIMED` upon formal tool call execution.
-- **TTL Garbage Collector**: Automatically reaps unclaimed pods after 60 seconds.
-- **Offline Mock Fallback**: Seamless development experience with zero dependencies on a live cloud cluster.
+### 2. Rust intent scorer (`services/intent-engine/`)
+
+Maintains a bounded per-session text buffer, performs keyword checks and
+TF-IDF-style lexical similarity, and compares a heuristic score against a
+threshold derived from static profile values. The score is not a calibrated
+probability. No per-token latency target has been measured.
+
+### 3. Go Kubernetes lifecycle (`services/control-plane/`)
+
+Creates a named pod in a configured namespace, exposes a claim endpoint that
+marks it claimed and waits for readiness, and periodically deletes expired
+unclaimed pods. The sandbox process is idle; the claim endpoint does not
+execute a tool payload. Session-specific pod names and labels are not, by
+themselves, a security isolation guarantee.
+
+## Not implemented or evaluated
+
+The current Go/Rust path is not a Kubernetes operator and has no CRDs, gRPC
+API, provider-adapter suite, lock-free side channel, OpenTelemetry spans,
+preemptible sandbox class, or end-to-end agent tool execution. Prometheus
+metrics are exposed, but a production observability stack and performance
+evaluation are not established by the prototype.

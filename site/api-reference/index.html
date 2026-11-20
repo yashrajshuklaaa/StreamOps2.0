@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -31,10 +31,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#api-protocol-reference" class="md-skip">
+        <a href="#api-reference" class="md-skip">
           Skip to content
         </a>
       
@@ -647,63 +647,46 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#endpoints" class="md-nav__link">
+  <a href="#post-apigenerate" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Endpoints
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Endpoints">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-post-apigenerate" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. POST /api/generate
+        POST /api/generate
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#2-post-v1chatcompletions" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#post-v1sessionssession_idclaim" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. POST /v1/chat/completions
+        POST /v1/sessions/{session_id}/claim
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#3-get-metrics" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#get-healthz-and-get-readyz" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. GET /metrics
+        GET /healthz and GET /readyz
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#4-get-healthz-get-readyz" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#get-metrics" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. GET /healthz &amp; GET /readyz
+        GET /metrics
       
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -769,63 +752,46 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#endpoints" class="md-nav__link">
+  <a href="#post-apigenerate" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Endpoints
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Endpoints">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-post-apigenerate" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. POST /api/generate
+        POST /api/generate
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#2-post-v1chatcompletions" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#post-v1sessionssession_idclaim" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. POST /v1/chat/completions
+        POST /v1/sessions/{session_id}/claim
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#3-get-metrics" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#get-healthz-and-get-readyz" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. GET /metrics
+        GET /healthz and GET /readyz
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#4-get-healthz-get-readyz" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#get-metrics" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. GET /healthz &amp; GET /readyz
+        GET /metrics
       
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -849,46 +815,46 @@
   
 
 
-<h1 id="api-protocol-reference">API &amp; Protocol Reference</h1>
-<p>Stream-Ops exposes standard OpenAI and Ollama compatible endpoints alongside telemetry and observability hooks.</p>
-<hr />
-<h2 id="endpoints">Endpoints</h2>
-<h3 id="1-post-apigenerate">1. <code>POST /api/generate</code></h3>
-<p>Proxies streaming generation requests with real-time speculative lookahead.</p>
-<p><strong>Request Body (NDJSON/JSON):</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">"model"</span><span class="p">:</span><span class="w"> </span><span class="s2">"llama3:8b"</span><span class="p">,</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">"prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Analyze this data in Python and compute averages."</span><span class="p">,</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">"stream"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">}</span>
-</code></pre></div></p>
-<p><strong>Response:</strong>
-Streams NDJSON chunks while concurrently triggering Kubernetes pod pre-warming in the background.</p>
-<hr />
-<h3 id="2-post-v1chatcompletions">2. <code>POST /v1/chat/completions</code></h3>
-<p>OpenAI-compatible chat completion proxy supporting Server-Sent Events (SSE).</p>
-<p><strong>Request Body:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">"model"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gpt-4o"</span><span class="p">,</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">"messages"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="p">{</span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user"</span><span class="p">,</span><span class="w"> </span><span class="nt">"content"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Query the PostgreSQL database for user registrations."</span><span class="p">}</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="p">],</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nt">"stream"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">}</span>
-</code></pre></div></p>
-<hr />
-<h3 id="3-get-metrics">3. <code>GET /metrics</code></h3>
-<p>Prometheus metrics endpoint.</p>
-<p><strong>Key Metrics:</strong>
-- <code>streamops_tokens_processed_total</code>: Total streaming tokens processed.
-- <code>streamops_intents_detected_total</code>: Speculative intents triggered per tool.
-- <code>streamops_pod_provision_seconds</code>: Latency distribution of pod provisioning.
-- <code>streamops_latency_masked_seconds_total</code>: Cumulative cold-start seconds masked.
-- <code>streamops_active_sandboxes</code>: Gauge of currently active pods.
-- <code>streamops_finops_saved_usd_total</code>: Total calculated dollar value saved.</p>
-<hr />
-<h3 id="4-get-healthz-get-readyz">4. <code>GET /healthz</code> &amp; <code>GET /readyz</code></h3>
-<p>Liveness and Readiness health checks.</p>
+<h1 id="api-reference">API Reference</h1>
+<p>This reference describes the current Go control plane in
+<code>services/control-plane/</code>. It currently supports Ollama's
+<code>/api/generate</code> route; the legacy Python service has additional routes that
+are not part of this Go/Rust prototype.</p>
+<h2 id="post-apigenerate"><code>POST /api/generate</code></h2>
+<p>Forwards an Ollama generation request and streams the upstream NDJSON response.
+Each response chunk is also sent to the Rust intent service. When the intent
+service returns a trigger decision, the Go control plane creates a Kubernetes
+pod asynchronously.</p>
+<p>The response includes an <code>X-StreamOps-Session-ID</code> header. Keep this value if
+you want to claim the corresponding speculative pod. A triggered pod is an
+idle sandbox; this endpoint does not execute generated code or tool calls.</p>
+<h2 id="post-v1sessionssession_idclaim"><code>POST /v1/sessions/{session_id}/claim</code></h2>
+<p>Marks an existing speculative pod as claimed and waits for it to become ready.
+It does not run a tool payload.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="err">POST /v1/sessions/0123456789abcdef0123456789abcdef/claim</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="err">Content-Type: application/json</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="err">{"tool_name":"python"}</span>
+</code></pre></div>
+<p>The response contains the pod name, namespace, readiness status, and timing
+fields. Timing returned by this endpoint is not an end-to-end TTFE measurement.</p>
+<h2 id="get-healthz-and-get-readyz"><code>GET /healthz</code> and <code>GET /readyz</code></h2>
+<p><code>/healthz</code> indicates that the Go process is running. <code>/readyz</code> checks the
+configured Kubernetes namespace API and Rust intent service.</p>
+<h2 id="get-metrics"><code>GET /metrics</code></h2>
+<p>Exposes Go process metrics and the following Stream-Ops counters/histograms:</p>
+<ul>
+<li><code>streamops_intent_triggers_total</code></li>
+<li><code>streamops_pod_create_errors_total</code></li>
+<li><code>streamops_pod_trigger_to_ready_seconds</code></li>
+<li><code>streamops_cold_start_seconds_masked_total</code></li>
+<li><code>streamops_speculative_pods_reclaimed_total</code></li>
+</ul>
+<p>The metric named <code>streamops_cold_start_seconds_masked_total</code> currently
+calculates the overlap of a recorded pod-ready time and a claim request. It
+does not establish an agent-generated tool call or an end-to-end latency
+benefit; interpret it as a prototype diagnostic only.</p>
 
 
 
@@ -938,10 +904,10 @@ Streams NDJSON chunks while concurrently triggering Kubernetes pod pre-warming i
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>

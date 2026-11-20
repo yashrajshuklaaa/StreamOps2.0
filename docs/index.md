@@ -1,33 +1,33 @@
 # Welcome to Stream-Ops 2.0
 
-**Stream-Ops** is an enterprise-grade, cloud-native speculative control plane that eliminates container cold-start latencies for autonomous LLM agents by exploiting the **Chain-of-Thought (CoT) lookahead window**.
+**Stream-Ops** is a research prototype for exploring speculative sandbox prewarming in tool-using LLM systems. Performance benefits have not yet been evaluated.
 
 ```
-[ LLM Internal Reasoning (CoT / <think>) ] ──────────► [ Tool Action Token ] ──► [ Execution ]
-   └──► [ Stream-Ops Background Pre-warming ] (Pod is ALREADY HOT!)
+[ Streamed Ollama response text ] ──► [ Rust heuristic intent scorer ]
+                                           └──► [ Go requests a Kubernetes pod ]
 ```
 
 ---
 
 ## The Core Problem: The Cold Start Dilemma
 
-When complex AI agents invoke tools (like a Python data sandbox, PostgreSQL database, or headless browser), the physical infrastructure introduces a **5 to 15-second cold start delay** to schedule pods, pull container layers, and attach network policies.
+Creating a Kubernetes pod can add infrastructure delay. Its size depends on the cluster, image cache, scheduling conditions, and runtime; this repository has not established a general cold-start range.
 
 | Strategy | Latency Impact | Cloud Compute Cost | Security & Isolation |
 | :--- | :--- | :--- | :--- |
 | **Always-On Static Pods** | ⚡ Instant (0s) | 💸 **Extremely Wasteful** (Hundreds of idle pods) | ⚠️ Risk of cross-tenant state leakage |
 | **On-Demand Reactive Pods** | 🐢 **5–15s Cold Penalty** | 💰 Minimal cost | ✅ Fresh container per session |
-| **Stream-Ops Speculative JIT** | ⚡ **Instant (Masked)** | 💰 **Minimal Cost** (JIT TTL Reclamation) | ✅ Session-isolated ephemeral sandboxes |
+| **Stream-Ops prototype** | Not evaluated | Not evaluated | Creates isolated-by-session named pods; isolation requires further review |
 
 ---
 
 ## Key Highlights
 
-- **Sub-Request Concurrency**: Overlaps physical container startup with LLM streaming text generation.
-- **Bayesian FinOps Optimization**: Dynamically computes optimal threshold $\theta^*(k)$ to mathematically guarantee bounded cloud expenditure.
-- **DeepSeek `<think>` Token Interception**: Native lookahead extraction from explicit reasoning streams.
-- **Enterprise Cloud Stack**: Helm v3 Chart, Terraform EKS/GKE modules, KEDA ScaledObjects, OpenTelemetry distributed tracing, and Prometheus/Grafana dashboards.
-- **Zero-Friction Integration**: Works as an HTTP reverse proxy compatible with OpenAI, Anthropic, Ollama, and Model Context Protocol (MCP) clients.
+- Rust scores ordinary Ollama response chunks using keywords and lexical similarity.
+- Go can create a real Kubernetes pod and delete expired unclaimed speculative pods.
+- The threshold uses static profile values; the score is not a calibrated probability.
+- The claim endpoint marks a pod claimed and waits for readiness; it does not execute tool code.
+- Performance, cost savings, multi-provider compatibility, and production isolation are not evaluated.
 
 ---
 

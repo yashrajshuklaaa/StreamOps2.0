@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -31,10 +31,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -578,10 +578,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-multi-provider-streaming-adapters-streamopsadapters" class="md-nav__link">
+  <a href="#1-go-ollama-proxy-servicescontrol-plane" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Multi-Provider Streaming Adapters (streamops/adapters/)
+        1. Go Ollama proxy (services/control-plane/)
       
     </span>
   </a>
@@ -589,10 +589,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-multi-stage-intent-predictor-streamopsintent" class="md-nav__link">
+  <a href="#2-rust-intent-scorer-servicesintent-engine" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Multi-Stage Intent Predictor (streamops/intent/)
+        2. Rust intent scorer (services/intent-engine/)
       
     </span>
   </a>
@@ -600,10 +600,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-kubernetes-sandbox-controller-streamopsk8s" class="md-nav__link">
+  <a href="#3-go-kubernetes-lifecycle-servicescontrol-plane" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Kubernetes Sandbox Controller (streamops/k8s/)
+        3. Go Kubernetes lifecycle (services/control-plane/)
       
     </span>
   </a>
@@ -612,6 +612,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#not-implemented-or-evaluated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Not implemented or evaluated
+      
+    </span>
+  </a>
   
 </li>
       
@@ -770,10 +781,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-multi-provider-streaming-adapters-streamopsadapters" class="md-nav__link">
+  <a href="#1-go-ollama-proxy-servicescontrol-plane" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Multi-Provider Streaming Adapters (streamops/adapters/)
+        1. Go Ollama proxy (services/control-plane/)
       
     </span>
   </a>
@@ -781,10 +792,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-multi-stage-intent-predictor-streamopsintent" class="md-nav__link">
+  <a href="#2-rust-intent-scorer-servicesintent-engine" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Multi-Stage Intent Predictor (streamops/intent/)
+        2. Rust intent scorer (services/intent-engine/)
       
     </span>
   </a>
@@ -792,10 +803,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-kubernetes-sandbox-controller-streamopsk8s" class="md-nav__link">
+  <a href="#3-go-kubernetes-lifecycle-servicescontrol-plane" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Kubernetes Sandbox Controller (streamops/k8s/)
+        3. Go Kubernetes lifecycle (services/control-plane/)
       
     </span>
   </a>
@@ -804,6 +815,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#not-implemented-or-evaluated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Not implemented or evaluated
+      
+    </span>
+  </a>
   
 </li>
       
@@ -828,54 +850,41 @@
 
 
 <h1 id="system-architecture">System Architecture</h1>
-<p>Stream-Ops is engineered with a modular, cloud-native control plane architecture designed for high-throughput, low-latency LLM agent workloads.</p>
+<p>This diagram describes the current local prototype, not a production operator or a measured high-throughput system.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>flowchart TD
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    Client([Agent Client / MCP Gateway]) &lt;--&gt;|Streaming HTTP / SSE| Proxy[FastAPI Streaming Proxy]
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    subgraph StreamOpsEngine [Stream-Ops Speculative Engine]
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        Proxy --&gt; Adapter[Streaming Adapter: OpenAI / Claude / Ollama / DeepSeek]
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        Adapter --&gt; IntentEngine[Calibrated Intent Lookahead Engine]
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        IntentEngine --&gt; FastFilter[Stage 1: N-Gram Fast Filter &lt;0.2ms]
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        FastFilter --&gt; VectorScorer[Stage 2: TF-IDF Vector Scorer]
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        VectorScorer --&gt; FinOpsGate[Stage 3: Bayesian FinOps Decision Policy]
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        FinOpsGate --&gt;|Trigger Signal| K8sCtrl[Kubernetes Sandbox Controller]
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    end
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    subgraph KubernetesCluster [Kubernetes Cluster]
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>        K8sCtrl --&gt;|Speculative Pod Spawn| PodPool[Session-Isolated Pod: streamops-python-uuid]
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>        PodPool --&gt; TTL[Background TTL Garbage Collector]
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    end
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    subgraph TelemetryStack [Observability &amp; Web UI]
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>        Proxy --&gt; OTEL[OpenTelemetry Distributed Tracing]
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>        OTEL --&gt; Prom[Prometheus Metrics]
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>        Prom --&gt; Grafana[Grafana Dashboard]
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>        Proxy --&gt; UI[Glassmorphism Visualizer UI]
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    end
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    Client([HTTP client]) --&gt;|Ollama generate request| Go[Go control plane]
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    Go --&gt;|proxy request| Ollama[Ollama]
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    Ollama --&gt;|NDJSON response chunks| Go
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    Go --&gt;|chunk text, synchronous HTTP call| Rust[Rust intent service]
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    Rust --&gt;|heuristic decision| Go
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    Go --&gt;|create pod| K8s[Kubernetes API]
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    K8s --&gt; Pod[Idle speculative sandbox pod]
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    Go --&gt;|claim / TTL cleanup| K8s
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    Go --&gt; Metrics[Prometheus metrics endpoint]
 </code></pre></div>
-<hr />
 <h2 id="architecture-components">Architecture Components</h2>
-<h3 id="1-multi-provider-streaming-adapters-streamopsadapters">1. Multi-Provider Streaming Adapters (<code>streamops/adapters/</code>)</h3>
-<p>Normalizes heterogeneous LLM streaming formats into a unified <code>StreamChunk</code> interface:
-- <strong>OpenAI SSE Delta Streams</strong>: Parses <code>choices[0].delta.content</code> and <code>reasoning_content</code>.
-- <strong>Anthropic Claude Streams</strong>: Normalizes <code>content_block_delta</code> and <code>thinking_delta</code>.
-- <strong>Ollama NDJSON Streams</strong>: Parses newline-delimited JSON chunks.
-- <strong>DeepSeek R1 Interceptor</strong>: Tracks <code>&lt;think&gt; ... &lt;/think&gt;</code> token state machine.</p>
-<h3 id="2-multi-stage-intent-predictor-streamopsintent">2. Multi-Stage Intent Predictor (<code>streamops/intent/</code>)</h3>
-<ul>
-<li><strong>Stage 1 (Sub-millisecond N-Gram Fast-Path)</strong>: Evaluates compiled regex lookaheads in <span class="arithmatex">\(&lt;0.2\text{ms}\)</span>.</li>
-<li><strong>Stage 2 (TF-IDF Vector Scorer)</strong>: Fits an n-gram vectorizer against dynamic tool catalogs and MCP specifications.</li>
-<li><strong>Stage 3 (Bayesian Threshold Gate)</strong>: Validates against tool-specific cost-utility boundaries.</li>
-</ul>
-<h3 id="3-kubernetes-sandbox-controller-streamopsk8s">3. Kubernetes Sandbox Controller (<code>streamops/k8s/</code>)</h3>
-<ul>
-<li><strong>Session Pod Naming</strong>: Unique deterministic naming <code>streamops-&lt;tool&gt;-&lt;session_id&gt;</code> to guarantee concurrency isolation.</li>
-<li><strong>Two-Phase Commit</strong>: Ephemeral pods start in <code>PREWARMED</code> state; transitioning to <code>CLAIMED</code> upon formal tool call execution.</li>
-<li><strong>TTL Garbage Collector</strong>: Automatically reaps unclaimed pods after 60 seconds.</li>
-<li><strong>Offline Mock Fallback</strong>: Seamless development experience with zero dependencies on a live cloud cluster.</li>
-</ul>
+<h3 id="1-go-ollama-proxy-servicescontrol-plane">1. Go Ollama proxy (<code>services/control-plane/</code>)</h3>
+<p>Proxies Ollama's newline-delimited <code>/api/generate</code> route and inspects each
+response chunk. OpenAI and Anthropic adapters in the legacy Python tree are
+not used by this Go service. The prototype does not claim access to private
+reasoning.</p>
+<h3 id="2-rust-intent-scorer-servicesintent-engine">2. Rust intent scorer (<code>services/intent-engine/</code>)</h3>
+<p>Maintains a bounded per-session text buffer, performs keyword checks and
+TF-IDF-style lexical similarity, and compares a heuristic score against a
+threshold derived from static profile values. The score is not a calibrated
+probability. No per-token latency target has been measured.</p>
+<h3 id="3-go-kubernetes-lifecycle-servicescontrol-plane">3. Go Kubernetes lifecycle (<code>services/control-plane/</code>)</h3>
+<p>Creates a named pod in a configured namespace, exposes a claim endpoint that
+marks it claimed and waits for readiness, and periodically deletes expired
+unclaimed pods. The sandbox process is idle; the claim endpoint does not
+execute a tool payload. Session-specific pod names and labels are not, by
+themselves, a security isolation guarantee.</p>
+<h2 id="not-implemented-or-evaluated">Not implemented or evaluated</h2>
+<p>The current Go/Rust path is not a Kubernetes operator and has no CRDs, gRPC
+API, provider-adapter suite, lock-free side channel, OpenTelemetry spans,
+preemptible sandbox class, or end-to-end agent tool execution. Prometheus
+metrics are exposed, but a production observability stack and performance
+evaluation are not established by the prototype.</p>
 
 
 
@@ -925,10 +934,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>

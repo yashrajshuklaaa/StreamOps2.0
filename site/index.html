@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -29,10 +29,10 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -792,13 +792,13 @@
 
 
 <h1 id="welcome-to-stream-ops-20">Welcome to Stream-Ops 2.0</h1>
-<p><strong>Stream-Ops</strong> is an enterprise-grade, cloud-native speculative control plane that eliminates container cold-start latencies for autonomous LLM agents by exploiting the <strong>Chain-of-Thought (CoT) lookahead window</strong>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>[ LLM Internal Reasoning (CoT / &lt;think&gt;) ] ──────────► [ Tool Action Token ] ──► [ Execution ]
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>   └──► [ Stream-Ops Background Pre-warming ] (Pod is ALREADY HOT!)
+<p><strong>Stream-Ops</strong> is a research prototype for exploring speculative sandbox prewarming in tool-using LLM systems. Performance benefits have not yet been evaluated.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>[ Streamed Ollama response text ] ──► [ Rust heuristic intent scorer ]
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>                                           └──► [ Go requests a Kubernetes pod ]
 </code></pre></div>
 <hr />
 <h2 id="the-core-problem-the-cold-start-dilemma">The Core Problem: The Cold Start Dilemma</h2>
-<p>When complex AI agents invoke tools (like a Python data sandbox, PostgreSQL database, or headless browser), the physical infrastructure introduces a <strong>5 to 15-second cold start delay</strong> to schedule pods, pull container layers, and attach network policies.</p>
+<p>Creating a Kubernetes pod can add infrastructure delay. Its size depends on the cluster, image cache, scheduling conditions, and runtime; this repository has not established a general cold-start range.</p>
 <table>
 <thead>
 <tr>
@@ -822,21 +822,21 @@
 <td style="text-align: left;">✅ Fresh container per session</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Stream-Ops Speculative JIT</strong></td>
-<td style="text-align: left;">⚡ <strong>Instant (Masked)</strong></td>
-<td style="text-align: left;">💰 <strong>Minimal Cost</strong> (JIT TTL Reclamation)</td>
-<td style="text-align: left;">✅ Session-isolated ephemeral sandboxes</td>
+<td style="text-align: left;"><strong>Stream-Ops prototype</strong></td>
+<td style="text-align: left;">Not evaluated</td>
+<td style="text-align: left;">Not evaluated</td>
+<td style="text-align: left;">Creates isolated-by-session named pods; isolation requires further review</td>
 </tr>
 </tbody>
 </table>
 <hr />
 <h2 id="key-highlights">Key Highlights</h2>
 <ul>
-<li><strong>Sub-Request Concurrency</strong>: Overlaps physical container startup with LLM streaming text generation.</li>
-<li><strong>Bayesian FinOps Optimization</strong>: Dynamically computes optimal threshold <span class="arithmatex">\(\theta^*(k)\)</span> to mathematically guarantee bounded cloud expenditure.</li>
-<li><strong>DeepSeek <code>&lt;think&gt;</code> Token Interception</strong>: Native lookahead extraction from explicit reasoning streams.</li>
-<li><strong>Enterprise Cloud Stack</strong>: Helm v3 Chart, Terraform EKS/GKE modules, KEDA ScaledObjects, OpenTelemetry distributed tracing, and Prometheus/Grafana dashboards.</li>
-<li><strong>Zero-Friction Integration</strong>: Works as an HTTP reverse proxy compatible with OpenAI, Anthropic, Ollama, and Model Context Protocol (MCP) clients.</li>
+<li>Rust scores ordinary Ollama response chunks using keywords and lexical similarity.</li>
+<li>Go can create a real Kubernetes pod and delete expired unclaimed speculative pods.</li>
+<li>The threshold uses static profile values; the score is not a calibrated probability.</li>
+<li>The claim endpoint marks a pod claimed and waits for readiness; it does not execute tool code.</li>
+<li>Performance, cost savings, multi-provider compatibility, and production isolation are not evaluated.</li>
 </ul>
 <hr />
 <h2 id="quick-navigation">Quick Navigation</h2>
@@ -897,10 +897,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.sections", "content.code.copy", "search.suggest", "search.highlight"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.sections", "content.code.copy", "search.suggest", "search.highlight"], "search": "assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>

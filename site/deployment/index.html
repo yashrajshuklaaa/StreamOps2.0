@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -31,10 +31,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#cloud-devops-deployment-guide" class="md-skip">
+        <a href="#deployment" class="md-skip">
           Skip to content
         </a>
       
@@ -620,77 +620,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-local-development-docker-compose" class="md-nav__link">
+  <a href="#local-kind-prototype" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Local Development (Docker Compose)
+        Local Kind prototype
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="1. Local Development (Docker Compose)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#endpoints" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Endpoints:
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-production-kubernetes-deployment-helm-v3" class="md-nav__link">
+  <a href="#legacy-deployment-examples" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Production Kubernetes Deployment (Helm v3)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2. Production Kubernetes Deployment (Helm v3)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#step-1-install-custom-resource-definitions-crds" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 1: Install Custom Resource Definitions (CRDs)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-2-deploy-helm-chart" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 2: Deploy Helm Chart
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-infrastructure-as-code-terraform-for-aws-eks" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Infrastructure as Code (Terraform for AWS EKS)
+        Legacy deployment examples
       
     </span>
   </a>
@@ -786,77 +730,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-local-development-docker-compose" class="md-nav__link">
+  <a href="#local-kind-prototype" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Local Development (Docker Compose)
+        Local Kind prototype
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="1. Local Development (Docker Compose)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#endpoints" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Endpoints:
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-production-kubernetes-deployment-helm-v3" class="md-nav__link">
+  <a href="#legacy-deployment-examples" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Production Kubernetes Deployment (Helm v3)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2. Production Kubernetes Deployment (Helm v3)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#step-1-install-custom-resource-definitions-crds" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 1: Install Custom Resource Definitions (CRDs)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-2-deploy-helm-chart" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 2: Deploy Helm Chart
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-infrastructure-as-code-terraform-for-aws-eks" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Infrastructure as Code (Terraform for AWS EKS)
+        Legacy deployment examples
       
     </span>
   </a>
@@ -883,44 +771,30 @@
   
 
 
-<h1 id="cloud-devops-deployment-guide">Cloud DevOps &amp; Deployment Guide</h1>
-<p>Stream-Ops is designed to run seamlessly from local development to multi-region cloud Kubernetes clusters.</p>
-<hr />
-<h2 id="1-local-development-docker-compose">1. Local Development (Docker Compose)</h2>
-<p>The easiest way to run the entire Stream-Ops stack (Control Plane + Mock LLM + Prometheus + Grafana + Redis + Jaeger) locally:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd</span><span class="w"> </span>deploy
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>docker-compose<span class="w"> </span>up<span class="w"> </span>--build
+<h1 id="deployment">Deployment</h1>
+<h2 id="local-kind-prototype">Local Kind prototype</h2>
+<p>The Go control plane and Rust intent service can be built and deployed to a
+local Kind cluster using:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>./scripts/run-kind.sh
 </code></pre></div>
-<h3 id="endpoints">Endpoints:</h3>
-<ul>
-<li><strong>Stream-Ops Visualizer Dashboard</strong>: <a href="http://localhost:8000/dashboard">http://localhost:8000/dashboard</a></li>
-<li><strong>Prometheus Metrics</strong>: <a href="http://localhost:9090">http://localhost:9090</a></li>
-<li><strong>Grafana Dashboard</strong>: <a href="http://localhost:3000">http://localhost:3000</a> (User: <code>admin</code>, Pass: <code>admin</code>)</li>
-<li><strong>Jaeger Distributed Traces</strong>: <a href="http://localhost:16686">http://localhost:16686</a></li>
-</ul>
-<hr />
-<h2 id="2-production-kubernetes-deployment-helm-v3">2. Production Kubernetes Deployment (Helm v3)</h2>
-<h3 id="step-1-install-custom-resource-definitions-crds">Step 1: Install Custom Resource Definitions (CRDs)</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>streamops/k8s/crd/
-</code></pre></div>
-<h3 id="step-2-deploy-helm-chart">Step 2: Deploy Helm Chart</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>stream-ops<span class="w"> </span>deploy/helm/stream-ops<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--namespace<span class="w"> </span>streamops-system<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>--create-namespace<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span>--set<span class="w"> </span><span class="nv">replicaCount</span><span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span>--set<span class="w"> </span>env.OLLAMA_URL<span class="o">=</span><span class="s2">"http://ollama.ai.svc.cluster.local:11434/api/generate"</span>
-</code></pre></div>
-<hr />
-<h2 id="3-infrastructure-as-code-terraform-for-aws-eks">3. Infrastructure as Code (Terraform for AWS EKS)</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">cd</span><span class="w"> </span>deploy/terraform
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>terraform<span class="w"> </span>init
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>terraform<span class="w"> </span>plan<span class="w"> </span>-out<span class="o">=</span>tfplan
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>terraform<span class="w"> </span>apply<span class="w"> </span>tfplan
-</code></pre></div>
-<p>This provisions:
-- Production AWS VPC with public/private subnets.
-- Amazon EKS Cluster v1.28 with Spot and On-Demand Node Groups.
-- IAM Roles for Service Accounts (IRSA) for Kubernetes Pod management.</p>
+<p>The script creates a <code>streamops</code> Kind cluster, builds and loads the two service
+images, then deploys the services and Ollama. The local cluster exposes the Go
+service on <code>http://localhost:8000</code>. The repository
+<a href="https://github.com/yashrajshuklaaa/StreamOps2.0/blob/main/README.md">README</a>
+has a streaming smoke-test request.</p>
+<p>The setup uses real Kubernetes pods, but does not execute tool payloads or
+represent a production deployment. The Ollama model must be downloaded
+separately, and cluster behavior depends on local machine resources and image
+availability.</p>
+<h2 id="legacy-deployment-examples">Legacy deployment examples</h2>
+<p><code>deploy/docker-compose.yml</code>, <code>deploy/helm/stream-ops/</code>, and
+<code>deploy/terraform/</code> predate the Go/Rust prototype. They describe examples for
+the legacy Python stack and have not been validated as deployment artifacts
+for the current services. The Helm chart and Terraform files must not be
+treated as production-ready infrastructure without review and testing.</p>
+<p>The Go/Rust prototype does not yet include a Kubernetes operator, CRD-based
+reconciliation, production RBAC policy, NetworkPolicy, priority/preemption
+configuration, or a production observability deployment.</p>
 
 
 
@@ -970,10 +844,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "content.code.copy", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>
