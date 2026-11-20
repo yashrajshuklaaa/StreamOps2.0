@@ -24,6 +24,50 @@
 
 ---
 
+## Go + Rust Real Kubernetes Prototype
+
+This repository now includes a real local Kind implementation in `services/`:
+
+- `services/intent-engine/`: Rust streaming intent engine with keyword, TF-IDF-like, and Bayesian threshold decisions.
+- `services/control-plane/`: Go Ollama-compatible streaming gateway with real Kubernetes pod provisioning, claiming, readiness tracking, TTL cleanup, and Prometheus metrics.
+- `deploy/kind/`: Kind cluster and Kubernetes deployment manifests.
+
+Start the complete local stack:
+
+```bash
+./scripts/run-kind.sh
+```
+
+The control plane is exposed at `http://localhost:8000`. Pull a model and send a live streaming request:
+
+```bash
+kubectl exec -n streamops deployment/ollama -- ollama pull llama3.2:1b
+
+curl --no-buffer \
+  -H "Content-Type: application/json" \
+  -d '{"model":"llama3.2:1b","prompt":"Analyze the dataset using Python and pandas.","stream":true}' \
+  http://localhost:8000/api/generate
+```
+
+The generated response includes `X-StreamOps-Session-ID`. Claim the pre-warmed Python pod with that session ID:
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"tool_name":"python"}' \
+  http://localhost:8000/v1/sessions/<session-id>/claim
+```
+
+Useful checks:
+
+```bash
+curl http://localhost:8000/readyz
+curl http://localhost:8000/metrics
+kubectl get pods -n streamops
+```
+
+---
+
 ## 🚀 Quickstart
 
 ### 1. Install Dependencies
